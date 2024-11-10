@@ -1,3 +1,5 @@
+// Vertex shader
+
 struct VertexInput {
     @location(0) position: vec3<f32>,
     @location(1) color: vec3<f32>,
@@ -6,17 +8,22 @@ struct VertexInput {
 struct VertexOutput {
     @builtin(position) clip_position: vec4<f32>,
     @location(0) color: vec3<f32>,
-    @location(1) vert_pos: vec3<f32>,
 };
+
+struct Uniform {
+    
+    view_proj: mat4x4<f32>,
+};
+@group(0) @binding(0) 
+var<uniform> uniform_me: Uniform;
 
 @vertex
 fn vs_main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
-    out.color = model.color;
-    out.clip_position = vec4<f32>(model.position, 1.0);
-    out.vert_pos = model.position;
+    out.color =  model.color;
+    out.clip_position = uniform_me.view_proj * vec4<f32>(model.position, 1.0);
     return out;
 }
 
@@ -24,6 +31,5 @@ fn vs_main(
 
 @fragment
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
-    var color_out: vec4<f32> = vec4<f32>(in.color, 1.0);
-    return color_out;
+    return vec4<f32>(in.color, 1.0);
 }
